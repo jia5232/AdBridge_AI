@@ -14,6 +14,7 @@ from bs4 import BeautifulSoup
 from dotenv import load_dotenv
 from enum import Enum
 import openai
+from openai import AsyncOpenAI
 import logging
 import asyncio
 import random
@@ -24,7 +25,11 @@ from contextlib import contextmanager
 
 # Load environment variables
 load_dotenv()
-openai.api_key = os.getenv("OPENAI_API_KEY")
+api_key = os.getenv("OPENAI_API_KEY")
+if not api_key:
+    logging.error("OpenAI API key not found in environment variables")
+else:
+    logging.info("OpenAI API key loaded successfully")
 
 # Article data model
 class Article(BaseModel):
@@ -187,32 +192,36 @@ class RetryableWebDriver:
 class NewsTranslator:
     def __init__(self):
         self.system_prompt = "You are a professional insurance industry translator. Translate the following English insurance industry texts to Korean."
-        self.retry_strategy = Retry(
-            total=3,
-            backoff_factor=0.5,
-            status_forcelist=[500, 502, 503, 504]
+        self.client = AsyncOpenAI(
+            api_key=os.getenv("OPENAI_API_KEY")
         )
         
     async def translate_text(self, text: str) -> str:
         if not text:
             return ""
+            
         for attempt in range(3):
             try:
-                response = await openai.ChatCompletion.acreate(
-                    model="gpt-3.5-turbo",
+                response = await self.client.chat.completions.create(
                     messages=[
                         {"role": "system", "content": self.system_prompt},
-                        {"role": "user", "content": text},
+                        {"role": "user", "content": text}
                     ],
+                    model="gpt-3.5-turbo",
                     temperature=0.3,
                 )
-                return response.choices[0].message.content.strip()
+                
+                # 새로운 API 방식으로 응답 처리
+                translated_text = response.choices[0].message.content
+                return translated_text.strip()
+                
             except Exception as e:
                 if attempt == 2:  # Last attempt
                     logging.error(f"Translation error after 3 attempts: {str(e)}")
                     return text
+                    
                 wait_time = 0.5 * (2 ** attempt)
-                logging.warning(f"Translation attempt {attempt + 1} failed, retrying in {wait_time} seconds...")
+                logging.warning(f"Translation attempt {attempt + 1} failed, retrying in {wait_time} seconds... Error: {str(e)}")
                 await asyncio.sleep(wait_time)
 
 class InsuranceNewsScraper:
