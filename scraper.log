@@ -1,0 +1,138 @@
+2024-11-26 08:56:15,960 - INFO - [news.py:119] - Restarting WebDriver...
+2024-11-26 08:56:24,806 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1069f2390>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/5d74f5071152cef993b028069fbe9001
+2024-11-26 08:56:24,808 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1069f2570>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/5d74f5071152cef993b028069fbe9001
+2024-11-26 08:56:24,808 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x1069f2750>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/5d74f5071152cef993b028069fbe9001
+2024-11-26 08:57:14,325 - INFO - [news.py:328] - Application shutdown initiated
+2024-11-26 08:57:14,326 - INFO - [news.py:335] - Application shutdown completed
+2024-11-26 08:57:23,742 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 1/5)...
+2024-11-26 08:57:24,762 - INFO - [news.py:137] - WebDriver successfully restarted
+2024-11-26 08:57:31,819 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109df20f0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/9d0983ab7630ad989df3895e3a336a76
+2024-11-26 08:57:31,820 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109df20c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/9d0983ab7630ad989df3895e3a336a76
+2024-11-26 08:57:31,820 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109df26c0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/9d0983ab7630ad989df3895e3a336a76
+2024-11-26 08:57:50,350 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 1/5)...
+2024-11-26 08:58:50,729 - ERROR - [news.py:173] - Failed to initialize WebDriver: Message: session not created
+from unknown error: unable to discover open pages
+Stacktrace:
+0   chromedriver                        0x000000010099bac4 cxxbridge1$str$ptr + 3651580
+1   chromedriver                        0x0000000100994314 cxxbridge1$str$ptr + 3620940
+2   chromedriver                        0x00000001003fc4b4 cxxbridge1$string$len + 89224
+3   chromedriver                        0x00000001004312d8 cxxbridge1$string$len + 305836
+4   chromedriver                        0x000000010042cce8 cxxbridge1$string$len + 287932
+5   chromedriver                        0x0000000100429374 cxxbridge1$string$len + 273224
+6   chromedriver                        0x0000000100469c70 cxxbridge1$string$len + 537668
+7   chromedriver                        0x00000001004695b8 cxxbridge1$string$len + 535948
+8   chromedriver                        0x00000001004350b0 cxxbridge1$string$len + 321668
+9   chromedriver                        0x0000000100435d00 cxxbridge1$string$len + 324820
+10  chromedriver                        0x0000000100966e08 cxxbridge1$str$ptr + 3435328
+11  chromedriver                        0x000000010096a120 cxxbridge1$str$ptr + 3448408
+12  chromedriver                        0x000000010094e17c cxxbridge1$str$ptr + 3333812
+13  chromedriver                        0x000000010096a9e0 cxxbridge1$str$ptr + 3450648
+14  chromedriver                        0x000000010093f988 cxxbridge1$str$ptr + 3274432
+15  chromedriver                        0x00000001009850f4 cxxbridge1$str$ptr + 3558956
+16  chromedriver                        0x0000000100985270 cxxbridge1$str$ptr + 3559336
+17  chromedriver                        0x0000000100993f88 cxxbridge1$str$ptr + 3620032
+18  libsystem_pthread.dylib             0x0000000186a9ef94 _pthread_start + 136
+19  libsystem_pthread.dylib             0x0000000186a99d34 thread_start + 8
+
+2024-11-26 08:58:50,731 - WARNING - [news.py:144] - Restart attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 08:58:51,234 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 2/5)...
+2024-11-26 08:59:10,583 - ERROR - [news.py:173] - Failed to initialize WebDriver: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-26 08:59:10,587 - WARNING - [news.py:144] - Restart attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 08:59:11,593 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 3/5)...
+2024-11-26 08:59:12,632 - INFO - [news.py:137] - WebDriver successfully restarted
+2024-11-26 08:59:15,486 - WARNING - [news.py:111] - Attempt 1 failed, retrying in 0.5 seconds... Error: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-26 08:59:15,993 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109b848f0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c/url
+2024-11-26 08:59:15,994 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109b84da0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c/url
+2024-11-26 08:59:15,994 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109b84fb0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c/url
+2024-11-26 08:59:15,995 - WARNING - [news.py:111] - Attempt 2 failed, retrying in 1.0 seconds... Error: HTTPConnectionPool(host='localhost', port=55758): Max retries exceeded with url: /session/60a70c7f1013072288dc53943dc77b2c/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109b84cb0>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2024-11-26 08:59:16,996 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 1/5)...
+2024-11-26 08:59:17,437 - ERROR - [news.py:173] - Failed to initialize WebDriver: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-26 08:59:17,437 - WARNING - [news.py:144] - Restart attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 08:59:17,940 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 2/5)...
+2024-11-26 08:59:18,622 - ERROR - [news.py:173] - Failed to initialize WebDriver: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-26 08:59:18,623 - WARNING - [news.py:144] - Restart attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 08:59:19,625 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 3/5)...
+2024-11-26 08:59:23,017 - ERROR - [news.py:173] - Failed to initialize WebDriver: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+2024-11-26 08:59:23,020 - WARNING - [news.py:144] - Restart attempt 3 failed, retrying in 2.0 seconds...
+2024-11-26 08:59:25,024 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 4/5)...
+2024-11-26 08:59:26,087 - INFO - [news.py:137] - WebDriver successfully restarted
+2024-11-26 08:59:26,113 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109df2270>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c/url
+2024-11-26 08:59:26,118 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109df3980>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c/url
+2024-11-26 08:59:26,122 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109df39e0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c/url
+2024-11-26 08:59:26,126 - ERROR - [news.py:107] - Failed after 3 attempts: HTTPConnectionPool(host='localhost', port=55758): Max retries exceeded with url: /session/60a70c7f1013072288dc53943dc77b2c/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10970c920>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2024-11-26 08:59:26,128 - ERROR - [news.py:340] - Error scraping Insurance Business: HTTPConnectionPool(host='localhost', port=55758): Max retries exceeded with url: /session/60a70c7f1013072288dc53943dc77b2c/url (Caused by NewConnectionError('<urllib3.connection.HTTPConnection object at 0x10970c920>: Failed to establish a new connection: [Errno 61] Connection refused'))
+2024-11-26 08:59:26,134 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109b84b00>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c
+2024-11-26 08:59:26,136 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109b427e0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c
+2024-11-26 08:59:26,144 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f14620>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c
+2024-11-26 08:59:26,149 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f140e0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c
+2024-11-26 08:59:26,151 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f149b0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c
+2024-11-26 08:59:26,154 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x109f14b60>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/60a70c7f1013072288dc53943dc77b2c
+2024-11-26 08:59:26,262 - INFO - [news.py:368] - Application shutdown initiated
+2024-11-26 08:59:26,262 - INFO - [news.py:375] - Application shutdown completed
+2024-11-26 08:59:47,923 - INFO - [news.py:134] - Attempting to restart WebDriver (attempt 1/5)...
+2024-11-26 08:59:48,905 - INFO - [news.py:137] - WebDriver successfully restarted
+2024-11-26 09:00:00,502 - WARNING - [news.py:215] - Translation attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 09:00:01,004 - WARNING - [news.py:215] - Translation attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 09:00:02,005 - ERROR - [news.py:212] - Translation error after 3 attempts: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+2024-11-26 09:00:05,270 - WARNING - [news.py:215] - Translation attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 09:00:05,771 - WARNING - [news.py:215] - Translation attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 09:00:06,772 - ERROR - [news.py:212] - Translation error after 3 attempts: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+2024-11-26 09:00:11,000 - WARNING - [news.py:215] - Translation attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 09:00:11,502 - WARNING - [news.py:215] - Translation attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 09:00:12,503 - ERROR - [news.py:212] - Translation error after 3 attempts: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+2024-11-26 09:00:14,796 - WARNING - [news.py:215] - Translation attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 09:00:15,298 - WARNING - [news.py:215] - Translation attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 09:00:16,299 - ERROR - [news.py:212] - Translation error after 3 attempts: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+2024-11-26 09:00:19,735 - WARNING - [news.py:215] - Translation attempt 1 failed, retrying in 0.5 seconds...
+2024-11-26 09:00:20,237 - WARNING - [news.py:215] - Translation attempt 2 failed, retrying in 1.0 seconds...
+2024-11-26 09:00:21,238 - ERROR - [news.py:212] - Translation error after 3 attempts: 
+
+You tried to access openai.ChatCompletion, but this is no longer supported in openai>=1.0.0 - see the README at https://github.com/openai/openai-python for the API.
+
+You can run `openai migrate` to automatically upgrade your codebase to use the 1.0.0 interface. 
+
+Alternatively, you can pin your installation to the old version, e.g. `pip install openai==0.28`
+
+A detailed migration guide is available here: https://github.com/openai/openai-python/discussions/742
+
+2024-11-26 09:00:21,360 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=2, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x106becb30>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/0b9f32f99fd4e3e0eacf81935939bfe9
+2024-11-26 09:00:21,361 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=1, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x106becec0>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/0b9f32f99fd4e3e0eacf81935939bfe9
+2024-11-26 09:00:21,362 - WARNING - [connectionpool.py:870] - Retrying (Retry(total=0, connect=None, read=None, redirect=None, status=None)) after connection broken by 'NewConnectionError('<urllib3.connection.HTTPConnection object at 0x106bed070>: Failed to establish a new connection: [Errno 61] Connection refused')': /session/0b9f32f99fd4e3e0eacf81935939bfe9
+2024-11-26 09:00:43,619 - INFO - [news.py:368] - Application shutdown initiated
+2024-11-26 09:00:43,619 - INFO - [news.py:375] - Application shutdown completed
