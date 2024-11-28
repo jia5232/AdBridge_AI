@@ -22,6 +22,7 @@ from dotenv import load_dotenv
 from enum import Enum
 import hashlib
 from datetime import datetime, timedelta
+import traceback
 
 # 환경 변수 로드
 load_dotenv()
@@ -75,8 +76,8 @@ class Article(BaseModel):
     date: str
     original_content: Optional[str] = None
     korean_content: Optional[str] = None
-    first_seen: str  # 처음 스크랩된 날짜
-    last_updated: str  # 마지막으로 업데이트된 날짜
+    first_seen: str  
+    last_updated: str
 
 class NewsSource(str, Enum):
     ADWEEK = "AdWeek"
@@ -142,21 +143,19 @@ class MarketingNewsScraper:
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
+        chrome_options.add_argument("--remote-debugging-port=9222")
+        chrome_options.add_argument("--disable-extensions")
         chrome_options.add_argument('--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
-        
         chrome_options.page_load_strategy = 'eager'
         
-        # ChromeDriverManager 설정 수정
-        driver_manager = ChromeDriverManager()
-        driver_path = driver_manager.install()
-        
-        service = Service(
-            executable_path=driver_path,
-            # Mac M1/M2를 위한 추가 설정
-            log_path=os.devnull
-        )
-        
         try:
+            # 새로 다운로드한 ChromeDriver 경로 지정
+            driver_path = os.path.expanduser("~/webdrivers/chromedriver-mac-arm64/chromedriver")
+            service = Service(
+                executable_path=driver_path,
+                log_path=os.devnull
+            )
+            
             self.driver = webdriver.Chrome(
                 service=service, 
                 options=chrome_options
@@ -165,6 +164,8 @@ class MarketingNewsScraper:
             self.driver.set_page_load_timeout(30)
         except Exception as e:
             print(f"WebDriver 초기화 오류: {str(e)}")
+            import traceback
+            print(traceback.format_exc())
             raise
 
     def cleanup(self):
@@ -240,7 +241,6 @@ class MarketingNewsScraper:
         if not source_info:
             raise HTTPException(status_code=404, detail=f"Source {source_name} not found")
         
-        # 기존 기사 데이터 로드
         existing_articles = self.get_existing_articles()
         articles = []
         new_or_updated_articles = []
@@ -251,71 +251,108 @@ class MarketingNewsScraper:
         
         while retry_count < max_retries:
             try:
+                # Get page content
                 page_content = await self.get_page_content(source_info['url'])
                 if not page_content:
+                    print(f"Empty page content received for {source_name}, attempt {retry_count + 1}/{max_retries}")
                     retry_count += 1
+                    await asyncio.sleep(5)
                     continue
                 
+                # Parse the page
                 soup = BeautifulSoup(page_content, 'html.parser')
+                print(f"Scraping {source_name}...")
                 
+                # Get elements with safety checks
                 title_elements = soup.select(source_info['title_selector'])[:limit]
                 link_elements = soup.select(source_info['link_selector'])[:limit]
                 
+                if not title_elements or not link_elements:
+                    print(f"No elements found for {source_name}, attempt {retry_count + 1}/{max_retries}")
+                    retry_count += 1
+                    await asyncio.sleep(5)
+                    continue
+                
+                # Process each article
                 for title_elem, link_elem in zip(title_elements, link_elements):
-                    article_text = title_elem.get_text().strip()
-                    article_link = link_elem.get('href')
-                    
-                    if not article_link.startswith('http'):
-                        article_link = f"https://{article_link.lstrip('/')}"
-                    
-                    # 새 컨텐츠 스크랩
-                    content = await self.scrape_article_content(
-                        article_link,
-                        source_info['content_selector']
-                    )
-                    
-                    existing_data = existing_articles.get(article_link)
-                    
-                    # 새 기사이거나 컨텐츠가 변경된 경우에만 처리
-                    if not existing_data or self.is_content_changed(existing_data['content'], content):
-                        translated_title = await self.translator.translate_text(article_text)
-                        translated_content = await self.translator.translate_text(content) if content else None
+                    try:
+                        # Extract and validate title
+                        article_text = title_elem.get_text().strip() if title_elem else ""
+                        if not article_text:
+                            continue
                         
+                        # Extract and validate link
+                        article_link = link_elem.get('href', "").strip() if link_elem else ""
+                        if not article_link:
+                            continue
+                        
+                        # Ensure proper URL format
+                        if not article_link.startswith(('http://', 'https://')):
+                            article_link = f"https://www.{source_name.lower()}.com{article_link}" if not article_link.startswith('/') else f"https://www.{source_name.lower()}.com{article_link}"
+                        
+                        # Scrape article content
+                        content = await self.scrape_article_content(
+                            article_link,
+                            source_info['content_selector']
+                        )
+                        
+                        # Convert content to string if it's not already
+                        content = str(content) if content is not None else ""
+                        
+                        # Get existing data with proper default values
+                        existing_data = existing_articles.get(article_link, {
+                            'first_seen': current_date,
+                            'content': ''
+                        })
+                        
+                        # Create article object
                         article = Article(
                             source=source_name,
                             original_title=article_text,
-                            korean_title=translated_title,
+                            korean_title=await self.translator.translate_text(article_text),
                             link=article_link,
                             date=current_date,
                             original_content=content,
-                            korean_content=translated_content,
-                            first_seen=existing_data['first_seen'] if existing_data else current_date,
+                            korean_content=await self.translator.translate_text(content) if content else "",
+                            first_seen=existing_data['first_seen'],
                             last_updated=current_date
                         )
                         
-                        new_or_updated_articles.append(article)
-                    
-                    articles.append(article)
-                    await asyncio.sleep(random.uniform(1, 2))
+                        # Check if content has changed
+                        if not existing_data or self.is_content_changed(str(existing_data['content']), content):
+                            new_or_updated_articles.append(article)
+                        
+                        articles.append(article)
+                        await asyncio.sleep(random.uniform(1, 2))
+                        
+                    except Exception as e:
+                        print(f"Error processing individual article: {str(e)}")
+                        traceback.print_exc()
+                        continue
                 
-                # 새로운 또는 업데이트된 기사가 있는 경우에만 CSV 저장
+                # Save new or updated articles
                 if new_or_updated_articles:
-                    df = pd.DataFrame([article.dict() for article in new_or_updated_articles])
-                    csv_filename = os.path.join(
-                        self.data_dir,
-                        f'{source_name.lower()}_news_{datetime.now().strftime("%Y%m%d")}.csv'
-                    )
-                    df.to_csv(csv_filename, index=False, encoding='utf-8-sig')
+                    try:
+                        df = pd.DataFrame([article.dict() for article in new_or_updated_articles])
+                        csv_filename = os.path.join(
+                            self.data_dir,
+                            f'{source_name.lower()}_news_{datetime.now().strftime("%Y%m%d")}.csv'
+                        )
+                        df.to_csv(csv_filename, index=False, encoding='utf-8-sig')
+                    except Exception as e:
+                        print(f"Error saving articles to CSV: {str(e)}")
+                        traceback.print_exc()
                 
+                # Update scraping status
                 scraping_status["sources_completed"].append(source_name)
                 scraping_status["total_articles"] += len(new_or_updated_articles)
+                
+                # Successfully scraped, break the retry loop
                 break
                 
-            except TimeoutException:
-                retry_count += 1
-                await asyncio.sleep(5)
             except Exception as e:
                 print(f"Error scraping {source_name}: {str(e)}")
+                traceback.print_exc()
                 retry_count += 1
                 await asyncio.sleep(5)
         
