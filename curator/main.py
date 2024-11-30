@@ -74,8 +74,6 @@ class Article(BaseModel):
     korean_title: str
     link: str
     date: str
-    original_content: Optional[str] = None
-    korean_content: Optional[str] = None
     first_seen: str  
     last_updated: str
 
@@ -241,9 +239,7 @@ class MarketingNewsScraper:
         if not source_info:
             raise HTTPException(status_code=404, detail=f"Source {source_name} not found")
         
-        existing_articles = self.get_existing_articles()
         articles = []
-        new_or_updated_articles = []
         current_date = datetime.now().strftime("%Y-%m-%d")
         
         retry_count = 0
@@ -290,21 +286,6 @@ class MarketingNewsScraper:
                         if not article_link.startswith(('http://', 'https://')):
                             article_link = f"https://www.{source_name.lower()}.com{article_link}" if not article_link.startswith('/') else f"https://www.{source_name.lower()}.com{article_link}"
                         
-                        # Scrape article content
-                        content = await self.scrape_article_content(
-                            article_link,
-                            source_info['content_selector']
-                        )
-                        
-                        # Convert content to string if it's not already
-                        content = str(content) if content is not None else ""
-                        
-                        # Get existing data with proper default values
-                        existing_data = existing_articles.get(article_link, {
-                            'first_seen': current_date,
-                            'content': ''
-                        })
-                        
                         # Create article object
                         article = Article(
                             source=source_name,
@@ -312,15 +293,9 @@ class MarketingNewsScraper:
                             korean_title=await self.translator.translate_text(article_text),
                             link=article_link,
                             date=current_date,
-                            original_content=content,
-                            korean_content=await self.translator.translate_text(content) if content else "",
-                            first_seen=existing_data['first_seen'],
+                            first_seen=current_date,
                             last_updated=current_date
                         )
-                        
-                        # Check if content has changed
-                        if not existing_data or self.is_content_changed(str(existing_data['content']), content):
-                            new_or_updated_articles.append(article)
                         
                         articles.append(article)
                         await asyncio.sleep(random.uniform(1, 2))
@@ -330,10 +305,10 @@ class MarketingNewsScraper:
                         traceback.print_exc()
                         continue
                 
-                # Save new or updated articles
-                if new_or_updated_articles:
+                # Save articles
+                if articles:
                     try:
-                        df = pd.DataFrame([article.dict() for article in new_or_updated_articles])
+                        df = pd.DataFrame([article.dict() for article in articles])
                         csv_filename = os.path.join(
                             self.data_dir,
                             f'{source_name.lower()}_news_{datetime.now().strftime("%Y%m%d")}.csv'
@@ -345,7 +320,7 @@ class MarketingNewsScraper:
                 
                 # Update scraping status
                 scraping_status["sources_completed"].append(source_name)
-                scraping_status["total_articles"] += len(new_or_updated_articles)
+                scraping_status["total_articles"] += len(articles)
                 
                 # Successfully scraped, break the retry loop
                 break
