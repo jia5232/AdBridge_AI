@@ -89,7 +89,7 @@ class ServerConnectionManager:
                 self.session = None
 
 class RetryableWebDriver:
-    def __init__(self, max_retries=3, backoff_factor=0.5, timeout=10):
+    def __init__(self, max_retries=3, backoff_factor=0.5, timeout=20):
         self.max_retries = max_retries
         self.backoff_factor = backoff_factor
         self.timeout = timeout
@@ -97,60 +97,8 @@ class RetryableWebDriver:
         self.connection_retry_count = 0
         self.max_connection_retries = 5
 
-    def execute_with_retry(self, action, *args, **kwargs):
-        last_exception = None
-        
-        for attempt in range(self.max_retries):
-            try:
-                if not self.driver or not self.is_driver_alive():
-                    self.restart_driver_with_retry()
-                return action(*args, **kwargs)
-                
-            except Exception as e:
-                last_exception = e
-                if attempt == self.max_retries - 1:
-                    logging.error(f"Failed after {self.max_retries} attempts: {str(e)}")
-                    raise
-                    
-                wait_time = self.backoff_factor * (2 ** attempt)
-                logging.warning(f"Attempt {attempt + 1} failed, retrying in {wait_time} seconds... Error: {str(e)}")
-                time.sleep(wait_time)
-                
-                # 연결 관련 에러인 경우 드라이버 재시작
-                if "Failed to establish a new connection" in str(e):
-                    self.restart_driver_with_retry()
-
-    def is_driver_alive(self):
-        try:
-            # 더 안정적인 상태 확인
-            if not self.driver:
-                return False
-            # current_url 대신 window_handles 사용
-            self.driver.window_handles
-            return True
-        except Exception as e:
-            logging.warning(f"Driver health check failed: {str(e)}")
-            return False
-
-    def restart_driver_with_retry(self):
-        """드라이버 재시작을 재시도하는 메서드"""
-        for attempt in range(self.max_connection_retries):
-            try:
-                logging.info(f"Attempting to restart WebDriver (attempt {attempt + 1}/{self.max_connection_retries})...")
-                self.restart_driver()
-                if self.is_driver_alive():
-                    logging.info("WebDriver successfully restarted")
-                    return
-            except Exception as e:
-                if attempt == self.max_connection_retries - 1:
-                    logging.error(f"Failed to restart WebDriver after {self.max_connection_retries} attempts")
-                    raise
-                wait_time = self.backoff_factor * (2 ** attempt)
-                logging.warning(f"Restart attempt {attempt + 1} failed, retrying in {wait_time} seconds...")
-                time.sleep(wait_time)
-
     def restart_driver(self):
-        """실제 드라이버 재시작 로직"""
+        """Improved driver restart logic with proper cleanup"""
         if self.driver:
             try:
                 self.driver.quit()
@@ -163,29 +111,75 @@ class RetryableWebDriver:
         chrome_options.add_argument("--no-sandbox")
         chrome_options.add_argument("--disable-dev-shm-usage")
         chrome_options.add_argument("--disable-gpu")
-        chrome_options.add_argument("--disable-extensions")  # 추가
-        chrome_options.add_argument("--disable-dev-shm-usage")  # 추가
-        chrome_options.add_argument("--remote-debugging-port=9222")  # 추가
+        chrome_options.add_argument("--disable-extensions")
+        chrome_options.add_argument("--disable-software-rasterizer")  # Add this
+        chrome_options.page_load_strategy = 'eager'  # Add this
         
         driver_path = "/Users/kwonjia/.wdm/drivers/chromedriver/mac64/131.0.6778.85/chromedriver-mac-arm64/chromedriver"
         service = Service(driver_path)
         
         try:
             self.driver = webdriver.Chrome(service=service, options=chrome_options)
-            self.driver.implicitly_wait(self.timeout)
-            self.driver.set_page_load_timeout(self.timeout)  # 페이지 로드 타임아웃 설정
+            self.driver.set_page_load_timeout(self.timeout)
+            self.driver.implicitly_wait(self.timeout // 2)  # Shorter implicit wait
+            
+            # Add connection validation
+            self.driver.get("about:blank")
+            return True
         except Exception as e:
             logging.error(f"Failed to initialize WebDriver: {str(e)}")
-            raise
+            return False
+
+    def execute_with_retry(self, action, *args, **kwargs):
+        last_exception = None
+        success = False
+        
+        for attempt in range(self.max_retries):
+            try:
+                if not self.driver or not self.is_driver_alive():
+                    if not self.restart_driver():
+                        raise WebDriverException("Failed to restart driver")
+                
+                result = action(*args, **kwargs)
+                success = True
+                return result
+                
+            except Exception as e:
+                last_exception = e
+                logging.warning(f"Attempt {attempt + 1} failed: {str(e)}")
+                
+                if attempt < self.max_retries - 1:
+                    wait_time = self.backoff_factor * (2 ** attempt)
+                    time.sleep(wait_time)
+                    
+                    if isinstance(e, (WebDriverException, ConnectionError)):
+                        self.restart_driver()
+        
+        if not success:
+            logging.error(f"All retry attempts failed: {str(last_exception)}")
+            raise last_exception
+
+    def is_driver_alive(self):
+        """Improved driver health check"""
+        try:
+            if not self.driver:
+                return False
+                
+            # Multiple checks for driver health
+            self.driver.current_url  # Basic connectivity check
+            self.driver.window_handles  # Session check
+            return True
+            
+        except Exception:
+            return False
 
     def quit(self):
-        """드라이버 종료"""
+        """Enhanced cleanup method"""
         if self.driver:
             try:
                 self.driver.quit()
-                logging.info("WebDriver successfully quit")
             except Exception as e:
-                logging.error(f"Error while quitting WebDriver: {str(e)}")
+                logging.error(f"Error during driver cleanup: {str(e)}")
             finally:
                 self.driver = None
 
@@ -388,13 +382,18 @@ active_scrapers = set()
 
 @app.get("/news/{source}", response_model=List[Article])
 async def get_news(source: NewsSource, limit: Optional[int] = 20):
-    scraper = InsuranceNewsScraper()
-    active_scrapers.add(scraper)
+    scraper = None
     try:
+        scraper = InsuranceNewsScraper()
+        active_scrapers.add(scraper)
         return await scraper.scrape_news(source.value, limit)
+    except Exception as e:
+        logging.error(f"Error in get_news endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
     finally:
-        scraper.cleanup()
-        active_scrapers.remove(scraper)
+        if scraper:
+            scraper.cleanup()
+            active_scrapers.remove(scraper)
 
 if __name__ == "__main__":
     import uvicorn
